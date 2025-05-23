@@ -303,9 +303,9 @@ export default function HomePage() {
   }
 
   return (
-    <>
+    <div className="flex flex-col h-screen">
       <CallToAction />
-      <nav className="sm:pt-6 pt-3 px-4 sm:px-12 flex items-center">
+      <nav className="pt-2 px-4 sm:px-8 flex items-center">
         <div className="pr-3 font-semibold text-gray-500">Chat with</div>
         <div className="font-semibold text-gray-500 sm:text-center">
           <Dropdown models={MODELS} selectedModel={model} setModel={setModel} />
@@ -338,29 +338,27 @@ export default function HomePage() {
 
       <Toaster position="top-left" reverseOrder={false} />
 
-      <main className="max-w-4xl pb-5 mx-auto mt-4 sm:px-4">
-        <div className="text-center"></div>
+      <SlideOver
+        open={open}
+        setOpen={setOpen}
+        systemPrompt={systemPrompt}
+        setSystemPrompt={setSystemPrompt}
+        replicateApiToken={replicateApiToken}
+        setReplicateApiToken={setReplicateApiToken}
+        handleSubmit={handleSettingsSubmit}
+        temp={temp}
+        setTemp={setTemp}
+        maxTokens={maxTokens}
+        setMaxTokens={setMaxTokens}
+        topP={topP}
+        setTopP={setTopP}
+        models={MODELS}
+        size={model}
+        setSize={setModel}
+      />
 
-        <SlideOver
-          open={open}
-          setOpen={setOpen}
-          systemPrompt={systemPrompt}
-          setSystemPrompt={setSystemPrompt}
-          replicateApiToken={replicateApiToken}
-          setReplicateApiToken={setReplicateApiToken}
-          handleSubmit={handleSettingsSubmit}
-          temp={temp}
-          setTemp={setTemp}
-          maxTokens={maxTokens}
-          setMaxTokens={setMaxTokens}
-          topP={topP}
-          setTopP={setTopP}
-          models={MODELS}
-          size={model}
-          setSize={setModel}
-        />
-
-        <article className="pb-24 pt-2">
+      <div className="flex-grow overflow-auto px-4 pt-2">
+        <div className="max-w-4xl mx-auto">
           <EmptyState setPrompt={setAndSubmitPrompt} setOpen={setOpen} />
 
           {messages.map((message, index) => (
@@ -375,19 +373,19 @@ export default function HomePage() {
           {starting && <QueuedSpinner />}
 
           <div ref={bottomRef} />
-        </article>
+        </div>
+      </div>
 
-        <ChatForm
-          prompt={input}
-          setPrompt={setInput}
-          onSubmit={handleSubmit}
-          handleFileUpload={handleFileUpload}
-          completion={completion}
-          metrics={metrics}
-        />
+      <ChatForm
+        prompt={input}
+        setPrompt={setInput}
+        onSubmit={handleSubmit}
+        handleFileUpload={handleFileUpload}
+        completion={completion}
+        metrics={metrics}
+      />
 
-        {error && <div className="text-red-500">{error.toString()}</div>}
-      </main>
-    </>
+      {error && <div className="text-red-500 max-w-4xl mx-auto px-4">{error.toString()}</div>}
+    </div>
   );
 }
