@@ -305,7 +305,7 @@ export default function HomePage() {
   return (
     <>
       <CallToAction />
-      <nav className="sm:pt-8 pt-4 px-4 sm:px-12 flex items-center">
+      <nav className="sm:pt-6 pt-3 px-4 sm:px-12 flex items-center">
         <div className="pr-3 font-semibold text-gray-500">Chat with</div>
         <div className="font-semibold text-gray-500 sm:text-center">
           <Dropdown models={MODELS} selectedModel={model} setModel={setModel} />
@@ -338,7 +338,7 @@ export default function HomePage() {
 
       <Toaster position="top-left" reverseOrder={false} />
 
-      <main className="max-w-2xl pb-5 mx-auto mt-8 sm:px-4">
+      <main className="max-w-4xl pb-5 mx-auto mt-4 sm:px-4">
         <div className="text-center"></div>
 
         <SlideOver
@@ -360,18 +360,7 @@ export default function HomePage() {
           setSize={setModel}
         />
 
-        <ChatForm
-          prompt={input}
-          setPrompt={setInput}
-          onSubmit={handleSubmit}
-          handleFileUpload={handleFileUpload}
-          completion={completion}
-          metrics={metrics}
-        />
-
-        {error && <div className="text-red-500">{error.toString()}</div>}
-
-        <article className="pb-24">
+        <article className="pb-24 pt-2">
           <EmptyState setPrompt={setAndSubmitPrompt} setOpen={setOpen} />
 
           {messages.map((message, index) => (
@@ -387,6 +376,17 @@ export default function HomePage() {
 
           <div ref={bottomRef} />
         </article>
+
+        <ChatForm
+          prompt={input}
+          setPrompt={setInput}
+          onSubmit={handleSubmit}
+          handleFileUpload={handleFileUpload}
+          completion={completion}
+          metrics={metrics}
+        />
+
+        {error && <div className="text-red-500">{error.toString()}</div>}
       </main>
     </>
   );
