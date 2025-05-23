@@ -19,8 +19,8 @@ const ChatForm = ({ prompt, setPrompt, onSubmit, metrics, completion, disabled }
   };
 
   return (
-    <footer className="z-10 fixed bottom-0 left-0 right-0 bg-slate-100 dark:bg-kojima-black border-t dark:border-kojima-gray/30 backdrop-blur-md transition-all duration-300">
-      <div className="container max-w-2xl mx-auto px-5 py-7">
+    <div className="w-full bg-slate-100 dark:bg-kojima-black border-t dark:border-kojima-gray/30 backdrop-blur-md transition-all duration-300 py-4">
+      <div className="container max-w-4xl mx-auto px-5">
         <Metrics
           startedAt={metrics.startedAt}
           firstMessageAt={metrics.firstMessageAt}
@@ -55,7 +55,7 @@ const ChatForm = ({ prompt, setPrompt, onSubmit, metrics, completion, disabled }
           </div>
         </form>
       </div>
-    </footer>
+    </div>
   );
 };
 
