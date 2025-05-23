@@ -1,57 +1,72 @@
-import { countTokens } from "../src/tokenizer";
+import { useEffect, useState } from "react";
 
-export default function Metrics({
-  startedAt,
-  firstMessageAt,
-  completedAt,
-  completion,
-}) {
-  const timeToFirstToken =
-    firstMessageAt && startedAt
-      ? (new Date(firstMessageAt) - new Date(startedAt)) / 1000.0
-      : null;
-  const tokenCount = completion && countTokens(completion);
-  const runningDuration = firstMessageAt
-    ? ((completedAt ? new Date(completedAt) : new Date()) -
-        new Date(firstMessageAt)) /
-      1000.0
-    : null;
-  const tokensPerSecond =
-    tokenCount > 0 && runningDuration > 0 && tokenCount / runningDuration;
+const Metrics = ({ startedAt, firstMessageAt, completedAt, completion }) => {
+  const [timeSinceStart, setTimeSinceStart] = useState(null);
+  const [timeToFirstToken, setTimeToFirstToken] = useState(null);
+  const [tokensPerSecond, setTokensPerSecond] = useState(null);
+  const [totalTime, setTotalTime] = useState(null);
 
-  if (timeToFirstToken === null || tokenCount === null || runningDuration === null) {
+  useEffect(() => {
+    if (!startedAt) {
+      return;
+    }
+
+    if (firstMessageAt) {
+      const timeToFirst = (firstMessageAt - startedAt) / 1000;
+      setTimeToFirstToken(timeToFirst.toFixed(2));
+    }
+
+    if (completedAt) {
+      const totalTimeCalc = (completedAt - startedAt) / 1000;
+      setTotalTime(totalTimeCalc.toFixed(2));
+
+      if (completion) {
+        // This is a very rough approximation
+        const tokens = completion.length / 4;
+        const tokensPerSecondCalc = tokens / totalTimeCalc;
+        setTokensPerSecond(tokensPerSecondCalc.toFixed(2));
+      }
+    } else {
+      const interval = setInterval(() => {
+        const timeSinceStartCalc = (new Date() - startedAt) / 1000;
+        setTimeSinceStart(timeSinceStartCalc.toFixed(2));
+      }, 100);
+      return () => clearInterval(interval);
+    }
+  }, [startedAt, firstMessageAt, completedAt, completion]);
+
+  if (!startedAt) {
     return null;
   }
 
   return (
-    <dl className="grid grid-cols-12 gap-2 mb-4">
-      <div className="col-span-3 sm:col-span-4 flex items-center justify-center sm:text-sm text-xs">
-        <dd className="text-gray-900 pr-3">
-          {timeToFirstToken ? timeToFirstToken.toFixed(2) : "—"}
-        </dd>
-        <dt className="font-medium text-gray-500">
-          <span className="hidden sm:inline">sec to </span> first token
-        </dt>
-      </div>
-      <div className="col-span-3 flex items-center justify-center sm:text-sm text-xs">
-        <dd className="text-gray-900 pr-2">
-          {tokensPerSecond ? tokensPerSecond.toFixed(2) : "—"}
-        </dd>
-        <dt className="font-medium text-gray-500">
-          t<span className="hidden sm:inline">okens</span> / s
-          <span className="hidden sm:inline">ec</span>
-        </dt>
-      </div>
-      <div className="col-span-3 sm:col-span-2 flex items-center justify-center sm:text-sm text-xs">
-        <dd className="text-gray-900 pr-2">{tokenCount || "—"}</dd>
-        <dt className="font-medium text-gray-500">tokens</dt>
-      </div>
-      <div className="col-span-3 flex items-center justify-center sm:text-sm text-xs">
-        <dd className="text-gray-900 pr-2">
-          {Math.max(runningDuration, 0).toFixed(2)}
-        </dd>
-        <dt className="font-medium text-gray-500">run time</dt>
-      </div>
-    </dl>
+    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-apple-text-tertiary mb-2 font-mono transition-colors duration-200">
+      {timeToFirstToken && (
+        <div className="flex items-center">
+          <span className="mr-1 text-apple-accent-blue dark:text-apple-accent-blue/90">⏱</span>
+          <span>First token: {timeToFirstToken}s</span>
+        </div>
+      )}
+      {tokensPerSecond && (
+        <div className="flex items-center">
+          <span className="mr-1 text-apple-accent-green dark:text-apple-accent-green/90">⚡</span>
+          <span>Speed: {tokensPerSecond} tokens/s</span>
+        </div>
+      )}
+      {totalTime && (
+        <div className="flex items-center">
+          <span className="mr-1 text-apple-accent-purple dark:text-apple-accent-purple/90">⌛</span>
+          <span>Total time: {totalTime}s</span>
+        </div>
+      )}
+      {timeSinceStart && (
+        <div className="flex items-center">
+          <span className="mr-1 text-apple-accent-orange dark:text-apple-accent-orange/90">⏳</span>
+          <span>Time elapsed: {timeSinceStart}s</span>
+        </div>
+      )}
+    </div>
   );
-}
+};
+
+export default Metrics;
