@@ -2,37 +2,117 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-    @apply font-sans;
+@layer base {
+  body {
+    @apply font-sans bg-white dark:bg-kojima-black text-gray-900 dark:text-apple-text-primary transition-colors duration-300;
+  }
+
+  input {
+    @apply border border-solid border-gray-300 dark:border-kojima-gray dark:bg-apple-dark-card dark:text-apple-text-primary px-4 py-2 transition-colors duration-200;
+  }
+
+  ::selection {
+    @apply bg-apple-accent-blue/30 dark:bg-apple-accent-blue/40;
+  }
 }
 
-input {
-    @apply border;
-    @apply border-solid;
-    @apply border-gray-300;
-    /* @apply rounded-md; */
-    @apply px-4;
-    @apply py-2;
-}
+@layer components {
+  .prompt-button {
+    @apply cursor-pointer underline text-apple-accent-blue dark:text-apple-accent-blue hover:text-apple-accent-indigo dark:hover:text-apple-accent-indigo transition-colors duration-200;
+  }
 
-.prompt-button {
-    @apply cursor-pointer underline;
-}
-
-i {
+  i {
     @apply font-normal;
-}
+  }
 
-.border-hairline {
-    @apply border border-black border-opacity-10;
-}
+  .border-hairline {
+    @apply border border-black border-opacity-10 dark:border-white dark:border-opacity-10;
+  }
 
-.button {
-    @apply bg-black hover:bg-gray-800 text-white rounded-r-md inline-block px-5 py-3;
-}
+  .button {
+    @apply bg-black hover:bg-gray-800 dark:bg-apple-accent-blue dark:hover:bg-apple-accent-blue/90 text-white rounded-r-md inline-block px-5 py-3 transition-all duration-200 ease-in-out;
+  }
 
-.image-wrapper {
+  .image-wrapper {
     width: 100%;
     aspect-ratio: 1 / 1;
     position: relative;
+  }
+
+  /* Kojima-inspired UI elements */
+  .kojima-card {
+    @apply bg-white dark:bg-kojima-gray rounded-md shadow-md dark:shadow-kojima p-5 backdrop-blur-sm dark:backdrop-blur-md border border-gray-100 dark:border-kojima-gray/50 transition-all duration-300;
+  }
+
+  .kojima-input {
+    @apply bg-white dark:bg-kojima-darkgray border border-gray-300 dark:border-kojima-gray/70 rounded-md px-4 py-2 focus:ring-2 focus:ring-apple-accent-blue dark:focus:ring-apple-accent-blue/70 focus:border-transparent transition-all duration-200;
+  }
+
+  .kojima-button {
+    @apply bg-gray-800 dark:bg-apple-accent-blue hover:bg-gray-700 dark:hover:bg-apple-accent-blue/90 text-white font-medium rounded-md px-5 py-3 transition-all duration-200 ease-in-out shadow-md dark:shadow-kojima hover:shadow-lg active:scale-[0.98];
+  }
+
+  .kojima-gradient-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-apple-accent-blue to-apple-accent-purple;
+  }
+
+  /* Apple-inspired UI elements */
+  .apple-card {
+    @apply bg-white dark:bg-apple-dark-card rounded-xl shadow-sm dark:shadow-apple-dark p-5 border border-gray-100 dark:border-apple-dark-elevated/30 transition-all duration-300;
+  }
+
+  .apple-button {
+    @apply bg-apple-accent-blue hover:bg-apple-accent-blue/90 text-white font-medium rounded-full px-6 py-2.5 transition-all duration-200 ease-in-out shadow-sm hover:shadow active:scale-[0.98];
+  }
+
+  .apple-input {
+    @apply bg-gray-50 dark:bg-apple-dark-elevated border border-gray-200 dark:border-apple-dark-elevated rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-apple-accent-blue/60 focus:border-transparent transition-all duration-200;
+  }
+
+  .glass-effect {
+    @apply bg-white/80 dark:bg-apple-dark-card/80 backdrop-blur-md border border-white/20 dark:border-white/10;
+  }
+}
+
+/* Dark mode toggle animation */
+.dark-mode-toggle {
+  @apply relative w-12 h-6 rounded-full bg-gray-300 dark:bg-apple-dark-elevated cursor-pointer transition-colors duration-300;
+}
+
+.dark-mode-toggle::after {
+  content: '';
+  @apply absolute top-1 left-1 w-4 h-4 rounded-full bg-white dark:bg-apple-accent-blue transition-all duration-300 ease-in-out;
+}
+
+.dark-mode-toggle.dark::after {
+  @apply transform translate-x-6;
+}
+
+/* Kojima-inspired animated border */
+.kojima-border {
+  @apply relative rounded-md overflow-hidden;
+}
+
+.kojima-border::before {
+  content: '';
+  @apply absolute inset-0 rounded-md z-0;
+  background: linear-gradient(90deg, #0a84ff, #5e5ce6, #bf5af2, #ff375f, #0a84ff);
+  background-size: 400% 400%;
+  animation: border-flow 8s ease infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.kojima-border:hover::before {
+  opacity: 1;
+}
+
+.kojima-border-content {
+  @apply relative z-10 bg-kojima-darkgray m-[1px] rounded-[calc(0.375rem-1px)] p-5;
+}
+
+@keyframes border-flow {
+  0% { background-position: 0% 50% }
+  50% { background-position: 100% 50% }
+  100% { background-position: 0% 50% }
 }
