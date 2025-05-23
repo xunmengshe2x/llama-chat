@@ -1,10 +1,6 @@
-import { Fragment } from "react";
-import { Dialog, Transition, Listbox } from "@headlessui/react";
-import {
-  XMarkIcon,
-  ChevronUpDownIcon,
-  CheckIcon,
-} from "@heroicons/react/24/outline";
+import { Fragment, useState } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 export default function SlideOver({
   open,
@@ -13,21 +9,21 @@ export default function SlideOver({
   setSystemPrompt,
   replicateApiToken,
   setReplicateApiToken,
+  handleSubmit,
   temp,
   setTemp,
-  topP,
-  setTopP,
   maxTokens,
   setMaxTokens,
+  topP,
+  setTopP,
   models,
   size,
   setSize,
-  handleSubmit,
 }) {
   return (
-    <Transition.Root show={open ? true : false} as={Fragment}>
+    <Transition.Root show={open} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={setOpen}>
-        <div className="fixed inset-0" />
+        <div className="fixed inset-0 bg-black/30 dark:bg-black/60 backdrop-blur-sm" />
 
         <div className="fixed inset-0 overflow-hidden">
           <div className="absolute inset-0 overflow-hidden">
@@ -42,273 +38,168 @@ export default function SlideOver({
                 leaveTo="translate-x-full"
               >
                 <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
-                  <form
-                    onSubmit={(e) => handleSubmit(e)}
-                    className="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl"
-                  >
-                    <div className="h-0 flex-1 overflow-y-auto">
-                      <div className="bg-gray-700 px-4 py-6 sm:px-6">
-                        <div className="flex items-center justify-between">
-                          <Dialog.Title className="text-base font-semibold leading-6 text-white">
-                            🦙 Chat with a Llama
-                          </Dialog.Title>
-                          <div className="ml-3 flex h-7 items-center">
-                            <button
-                              type="button"
-                              className="rounded-md bg-gray-700 text-gray-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
-                              onClick={() => setOpen(false)}
-                            >
-                              <span className="sr-only">Close panel</span>
-                              <XMarkIcon
-                                className="h-6 w-6"
-                                aria-hidden="true"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                        <div className="mt-1">
-                          <p className="text-sm text-gray-300">
-                            A project from Replicate.
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex flex-1 flex-col justify-between">
-                        <div className="divide-y divide-gray-200 px-4 sm:px-6">
-                          <div className="space-y-6 pb-5 pt-6">
-                            <div>
-                              <label
-                                htmlFor="description"
-                                className="block font-bold text-sm leading-6 text-gray-900"
-                              >
-                                Llama Size
-                              </label>
-
-                              <p
-                                id="system-prompt-description"
-                                className="mt-2 text-xs text-gray-500"
-                              >
-                                Larger size means smarter, but slower.
-                              </p>
-                              <div className="">
-                                <Listbox value={size} onChange={setSize}>
-                                  <div className="relative mt-1">
-                                    <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left border border-gray-300 focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
-                                      <span className="block truncate">
-                                        {size ? size.name : "loading..."}
-                                      </span>
-                                      <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                        <ChevronUpDownIcon
-                                          className="h-5 w-5 text-gray-400"
-                                          aria-hidden="true"
-                                        />
-                                      </span>
-                                    </Listbox.Button>
-                                    <Transition
-                                      as={Fragment}
-                                      leave="transition ease-in duration-100"
-                                      leaveFrom="opacity-100"
-                                      leaveTo="opacity-0"
-                                    >
-                                      <Listbox.Options className="absolute mt-1 max-h-60 w-full shadow-md overflow-auto border-gray-700 rounded-md bg-white py-1 text-base ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                                        {models
-                                          ? models.map(
-                                            (model, modelIdx) => (
-                                              <Listbox.Option
-                                                key={modelIdx}
-                                                className={({ active }) =>
-                                                  `relative cursor-default select-none py-2 pl-10 pr-4 ${active
-                                                    ? "bg-gray-100 text-gray-900"
-                                                    : "text-gray-900"
-                                                  }`
-                                                }
-                                                value={model}
-                                              >
-                                                {({ selected }) => (
-                                                  <>
-                                                    <span
-                                                      className={`block truncate ${selected
-                                                        ? "font-medium"
-                                                        : "font-normal"
-                                                        }`}
-                                                    >
-                                                      {model.name}
-                                                    </span>
-                                                    {selected ? (
-                                                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-600">
-                                                        <CheckIcon
-                                                          className="h-5 w-5"
-                                                          aria-hidden="true"
-                                                        />
-                                                      </span>
-                                                    ) : null}
-                                                  </>
-                                                )}
-                                              </Listbox.Option>
-                                            )
-                                          )
-                                          : null}
-                                      </Listbox.Options>
-                                    </Transition>
-                                  </div>
-                                </Listbox>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="space-y-6 pb-5 pt-6">
-                            <div>
-                              <label
-                                htmlFor="description"
-                                className="block font-bold text-sm leading-6 text-gray-900"
-                              >
-                                System Prompt
-                              </label>
-                              <p
-                                id="system-prompt-description"
-                                className="mt-2 text-xs text-gray-500"
-                              >
-                                This is prepended to the prompt and helps guide
-                                system behavior.
-                              </p>
-                              <div className="mt-3">
-                                <textarea
-                                  id="systemPrompt"
-                                  name="systemPrompt"
-                                  rows={4}
-                                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-                                  value={systemPrompt}
-                                  onChange={(e) =>
-                                    setSystemPrompt(e.target.value)
-                                  }
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="space-y-6 pb-5 pt-6">
-                            <div>
-                              <label
-                                htmlFor="description"
-                                className="block font-bold text-sm leading-6 text-gray-900"
-                              >
-                                Replicate API token
-                              </label>
-                              <p
-                                id="system-prompt-description"
-                                className="mt-2 text-xs text-gray-500"
-                              >
-                                Your personal key for making API requests. Keep this secret!
-                              </p>
-                              <div className="mt-3">
-                                <input
-                                  id="replicateApiToken"
-                                  name="replicateApiToken"
-                                  type="password"
-                                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-                                  value={replicateApiToken}
-                                  onChange={(e) =>
-                                    setReplicateApiToken(e.target.value)
-                                  }
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="space-y-6 pb-5 pt-6">
-                            <div>
-                              <label
-                                htmlFor="temperature"
-                                className="block text-sm font-bold leading-6 text-gray-900"
-                              >
-                                Temperature - {temp}
-                              </label>
-                              <p
-                                className="mt-2 text-xs text-gray-500"
-                                id="temperature-description"
-                              >
-                                Adjusts randomness of outputs, greater than 1 is
-                                random and 0 is deterministic, 0.75 is a good
-                                starting value.
-                              </p>
-                              <div className="mt-3">
-                                <input
-                                  id="temperature"
-                                  type="range"
-                                  min="0.01"
-                                  onChange={(e) => setTemp(e.target.value)}
-                                  value={temp}
-                                  max="5"
-                                  step="0.01"
-                                  name="temperature"
-                                  className="w-full h-1 bg-gray-100 accent-gray-500  rounded-lg appearance-none cursor-pointer"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <div className="space-y-6 pb-5 pt-6">
-                            <div>
-                              <label
-                                htmlFor="temperature"
-                                className="block text-sm font-bold leading-6 text-gray-900"
-                              >
-                                Max Tokens - {maxTokens}
-                              </label>
-                              <p
-                                className="mt-2 text-xs text-gray-500"
-                                id="temperature-description"
-                              >
-                                Maximum number of tokens to generate. A word is
-                                generally 2-3 tokens.
-                              </p>
-                              <div className="mt-3">
-                                <input
-                                  id="maxTokens"
-                                  type="range"
-                                  min="1"
-                                  onChange={(e) => setMaxTokens(e.target.value)}
-                                  value={maxTokens}
-                                  max="4096"
-                                  step="1"
-                                  name="maxTokens"
-                                  className="w-full h-1 bg-gray-100 accent-gray-500  rounded-lg appearance-none cursor-pointer"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <div className="space-y-6 pb-5 pt-6">
-                            <div>
-                              <label
-                                htmlFor="temperature"
-                                className="block text-sm font-bold leading-6 text-gray-900"
-                              >
-                                Top P - {topP}
-                              </label>
-                              <p
-                                className="mt-2 text-xs text-gray-500"
-                                id="temperature-description"
-                              >
-                                When decoding text, samples from the top p
-                                percentage of most likely tokens; lower to
-                                ignore less likely tokens.
-                              </p>
-                              <div className="mt-3">
-                                <input
-                                  id="topP"
-                                  type="range"
-                                  min="0.01"
-                                  onChange={(e) => setTopP(e.target.value)}
-                                  value={topP}
-                                  max="1"
-                                  step="0.01"
-                                  name="topP"
-                                  className="w-full h-1 bg-gray-100 accent-gray-500 rounded-lg appearance-none cursor-pointer"
-                                />
-                              </div>
-                            </div>
-                          </div>
+                  <div className="flex h-full flex-col overflow-y-scroll bg-white dark:bg-kojima-darkgray shadow-xl border-l dark:border-kojima-gray/30 transition-colors duration-300">
+                    <div className="px-4 sm:px-6 py-6 bg-gray-50 dark:bg-kojima-gray border-b dark:border-kojima-gray/50 transition-colors duration-300">
+                      <div className="flex items-center justify-between">
+                        <Dialog.Title className="text-base font-semibold leading-6 text-gray-900 dark:text-apple-text-primary">
+                          Settings
+                        </Dialog.Title>
+                        <div className="ml-3 flex h-7 items-center">
+                          <button
+                            type="button"
+                            className="rounded-md bg-white dark:bg-kojima-gray text-gray-400 dark:text-apple-text-tertiary hover:text-gray-500 dark:hover:text-apple-text-secondary focus:outline-none focus:ring-2 focus:ring-apple-accent-blue dark:focus:ring-apple-accent-blue/70 transition-colors duration-200"
+                            onClick={() => setOpen(false)}
+                          >
+                            <span className="sr-only">Close panel</span>
+                            <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                          </button>
                         </div>
                       </div>
                     </div>
-                  </form>
+                    <div className="relative flex-1 px-4 sm:px-6 py-6">
+                      <form onSubmit={handleSubmit}>
+                        <div className="space-y-6">
+                          <div>
+                            <label
+                              htmlFor="systemPrompt"
+                              className="block text-sm font-medium leading-6 text-gray-900 dark:text-apple-text-primary"
+                            >
+                              System Prompt
+                            </label>
+                            <div className="mt-2">
+                              <textarea
+                                id="systemPrompt"
+                                name="systemPrompt"
+                                rows={4}
+                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-apple-text-primary bg-white dark:bg-kojima-gray shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-kojima-gray/50 placeholder:text-gray-400 dark:placeholder:text-apple-text-quaternary focus:ring-2 focus:ring-inset focus:ring-apple-accent-blue dark:focus:ring-apple-accent-blue/70 sm:text-sm sm:leading-6 transition-colors duration-200"
+                                defaultValue={systemPrompt}
+                              />
+                            </div>
+                            <p className="mt-2 text-sm text-gray-500 dark:text-apple-text-tertiary">
+                              This is prepended to the model context to steer
+                              model behavior.
+                            </p>
+                          </div>
+
+                          <div>
+                            <label
+                              htmlFor="replicateApiToken"
+                              className="block text-sm font-medium leading-6 text-gray-900 dark:text-apple-text-primary"
+                            >
+                              Replicate API Token
+                            </label>
+                            <div className="mt-2">
+                              <input
+                                type="password"
+                                id="replicateApiToken"
+                                name="replicateApiToken"
+                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-apple-text-primary bg-white dark:bg-kojima-gray shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-kojima-gray/50 placeholder:text-gray-400 dark:placeholder:text-apple-text-quaternary focus:ring-2 focus:ring-inset focus:ring-apple-accent-blue dark:focus:ring-apple-accent-blue/70 sm:text-sm sm:leading-6 transition-colors duration-200"
+                                defaultValue={replicateApiToken}
+                              />
+                            </div>
+                            <p className="mt-2 text-sm text-gray-500 dark:text-apple-text-tertiary">
+                              Get your token at{" "}
+                              <a
+                                href="https://replicate.com/account/api-tokens"
+                                target="_blank"
+                                className="text-apple-accent-blue hover:text-apple-accent-indigo transition-colors duration-200"
+                              >
+                                replicate.com/account/api-tokens
+                              </a>
+                            </p>
+                          </div>
+
+                          <div>
+                            <label
+                              htmlFor="temperature"
+                              className="block text-sm font-medium leading-6 text-gray-900 dark:text-apple-text-primary"
+                            >
+                              Temperature: {temp}
+                            </label>
+                            <div className="mt-2">
+                              <input
+                                id="temperature"
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value={temp}
+                                onChange={(e ) => setTemp(e.target.value)}
+                                className="w-full h-2 bg-gray-200 dark:bg-kojima-gray rounded-lg appearance-none cursor-pointer accent-apple-accent-blue dark:accent-apple-accent-blue/90 transition-colors duration-200"
+                              />
+                            </div>
+                            <p className="mt-2 text-sm text-gray-500 dark:text-apple-text-tertiary">
+                              Adjusts randomness of outputs, 0 is deterministic.
+                            </p>
+                          </div>
+
+                          <div>
+                            <label
+                              htmlFor="topP"
+                              className="block text-sm font-medium leading-6 text-gray-900 dark:text-apple-text-primary"
+                            >
+                              Top P: {topP}
+                            </label>
+                            <div className="mt-2">
+                              <input
+                                id="topP"
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value={topP}
+                                onChange={(e) => setTopP(e.target.value)}
+                                className="w-full h-2 bg-gray-200 dark:bg-kojima-gray rounded-lg appearance-none cursor-pointer accent-apple-accent-blue dark:accent-apple-accent-blue/90 transition-colors duration-200"
+                              />
+                            </div>
+                            <p className="mt-2 text-sm text-gray-500 dark:text-apple-text-tertiary">
+                              Nucleus sampling, controls randomness.
+                            </p>
+                          </div>
+
+                          <div>
+                            <label
+                              htmlFor="maxTokens"
+                              className="block text-sm font-medium leading-6 text-gray-900 dark:text-apple-text-primary"
+                            >
+                              Max tokens: {maxTokens}
+                            </label>
+                            <div className="mt-2">
+                              <input
+                                id="maxTokens"
+                                type="range"
+                                min="1"
+                                max="4096"
+                                step="1"
+                                value={maxTokens}
+                                onChange={(e) => setMaxTokens(e.target.value)}
+                                className="w-full h-2 bg-gray-200 dark:bg-kojima-gray rounded-lg appearance-none cursor-pointer accent-apple-accent-blue dark:accent-apple-accent-blue/90 transition-colors duration-200"
+                              />
+                            </div>
+                            <p className="mt-2 text-sm text-gray-500 dark:text-apple-text-tertiary">
+                              Maximum number of tokens to generate.
+                            </p>
+                          </div>
+
+                          <div className="flex justify-end">
+                            <button
+                              type="button"
+                              className="rounded-md bg-white dark:bg-kojima-gray px-3 py-2 text-sm font-semibold text-gray-900 dark:text-apple-text-primary shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-kojima-gray/50 hover:bg-gray-50 dark:hover:bg-kojima-gray/80 transition-colors duration-200"
+                              onClick={() => setOpen(false)}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="submit"
+                              className="ml-3 rounded-md bg-apple-accent-blue px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-apple-accent-blue/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-apple-accent-blue transition-colors duration-200"
+                            >
+                              Save
+                            </button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
                 </Dialog.Panel>
               </Transition.Child>
             </div>
