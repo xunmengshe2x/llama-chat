@@ -1,68 +1,52 @@
-export default function EmptyState({ setOpen, setPrompt }) {
+const EmptyState = ({ setPrompt, setOpen }) => {
   return (
-    <div className="flex gap-x-4 mb-8">
-      <span className="text-xl sm:text-2xl pt-4" title="AI">
-        🦙
-      </span>
-      <div className="flex flex-col text-sm sm:text-base flex-1 gap-y-4 mt-1 rounded-lg bg-gray-100 py-5 px-5">
-        <p>I&apos;m an open-source chatbot.</p>
-        <p>
-          I can{" "}
-          <button
-            className="prompt-button"
-            onClick={() =>
-              setPrompt(
-                "Explain the self-attention mechanism that Transformers use like I'm five."
-              )
-            }
-          >
-            explain concepts
-          </button>
-          , write{" "}
-          <button
-            className="prompt-button"
-            onClick={() =>
-              setPrompt("Write a poem about open source machine learning. ")
-            }
-          >
-            poems
-          </button>{" "}
-          and{" "}
-          <button
-            className="prompt-button"
-            onClick={() =>
-              setPrompt(
-                "Write a python script that trains `bert-large` on the `IMDB` dataset using the Transformers `Trainer` className and Datasets library. I have access to four GPUs, so let's use DDP. Please write the script and then tell me how to launch it on the command line."
-              )
-            }
-          >
-            code
-          </button>
-          ,{" "}
-          <button
-            className="prompt-button"
-            onClick={() =>
-              setPrompt(
-                "Respond to this question only based on the information provided here. Cats like dogs, and dogs like rabbits. Cats like anything that dogs like. I really really dislike rabbits. How do cats feel about rabbits?"
-              )
-            }
-          >
-            solve logic puzzles
-          </button>
-          , or even{" "}
-          <button
-            className="prompt-button"
-            onClick={() =>
-              setPrompt(
-                "please provide 10 fun names for a pet pelican. Please come up with unique emojis to go along with each name. Try not to repeat the same emojis. Make them fun, colorful, and loving names"
-              )
-            }
-          >
-            name your pets.
-          </button>{" "}
-        </p>
-        <p>What do you want to chat about?</p>
+    <div className="py-8 sm:py-14 px-4 sm:px-0 text-center">
+      <h1 className="text-3xl sm:text-4xl font-bold mb-4 text-gray-900 dark:text-apple-text-primary kojima-gradient-text">
+        Neural Interface
+      </h1>
+      <p className="text-lg text-gray-600 dark:text-apple-text-secondary mb-8">
+        Powered by Claude 4 Sonnet and other advanced AI models
+      </p>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto mb-8">
+        <div 
+          onClick={() => setPrompt("Explain quantum computing in simple terms")}
+          className="kojima-card dark:bg-kojima-gray hover:scale-[1.02] cursor-pointer transition-all duration-300 ease-in-out"
+        >
+          <h3 className="font-medium text-gray-900 dark:text-apple-text-primary mb-1">Quantum Computing</h3>
+          <p className="text-sm text-gray-500 dark:text-apple-text-tertiary">Explain quantum computing in simple terms</p>
+        </div>
+        
+        <div 
+          onClick={() => setPrompt("Write a short story about a robot discovering emotions")}
+          className="kojima-card dark:bg-kojima-gray hover:scale-[1.02] cursor-pointer transition-all duration-300 ease-in-out"
+        >
+          <h3 className="font-medium text-gray-900 dark:text-apple-text-primary mb-1">Creative Writing</h3>
+          <p className="text-sm text-gray-500 dark:text-apple-text-tertiary">Write a story about a robot discovering emotions</p>
+        </div>
+        
+        <div 
+          onClick={() => setPrompt("Create a Python function to generate Fibonacci numbers")}
+          className="kojima-card dark:bg-kojima-gray hover:scale-[1.02] cursor-pointer transition-all duration-300 ease-in-out"
+        >
+          <h3 className="font-medium text-gray-900 dark:text-apple-text-primary mb-1">Coding Help</h3>
+          <p className="text-sm text-gray-500 dark:text-apple-text-tertiary">Create a Python function for Fibonacci numbers</p>
+        </div>
+        
+        <div 
+          onClick={() => setOpen(true)}
+          className="kojima-card dark:bg-kojima-gray hover:scale-[1.02] cursor-pointer transition-all duration-300 ease-in-out"
+        >
+          <h3 className="font-medium text-gray-900 dark:text-apple-text-primary mb-1">Customize</h3>
+          <p className="text-sm text-gray-500 dark:text-apple-text-tertiary">Adjust settings and system prompt</p>
+        </div>
+      </div>
+      
+      <div className="text-sm text-gray-500 dark:text-apple-text-tertiary">
+        <p>Type a message or select a suggestion to begin</p>
       </div>
     </div>
   );
-}
+};
+
+export default EmptyState;
