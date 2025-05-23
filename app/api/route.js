@@ -29,6 +29,8 @@ export async function POST(req) {
     response = await runLlava(params);
   } else if (params.audio) {
     response = await runSalmonn(params);
+  } else if (params.model.includes("claude")) {
+    response = await runClaude(params);
   } else {
     response = await runLlama(params);
   }
@@ -52,8 +54,6 @@ async function runLlama({
   console.log("model", model);
   console.log("maxTokens", maxTokens);
 
-
-
   return await replicateClient.predictions.create({
     model: model,
     stream: true,
@@ -66,6 +66,32 @@ async function runLlama({
       temperature: temperature,
       repetition_penalty: 1,
       top_p: topP,
+    },
+  });
+}
+
+async function runClaude({
+  replicateClient,
+  model,
+  prompt,
+  systemPrompt,
+  maxTokens,
+  temperature,
+  topP,
+}) {
+  console.log("running claude");
+  console.log("model", model);
+  console.log("maxTokens", maxTokens);
+
+  return await replicateClient.predictions.create({
+    model: model,
+    stream: true,
+    input: {
+      prompt: `${prompt}`,
+      system_prompt: systemPrompt,
+      temperature: temperature,
+      top_p: topP,
+      max_tokens: maxTokens,
     },
   });
 }
