@@ -13,6 +13,7 @@ export async function POST(req) {
   const params = await req.json();
   const ip = req.headers.get("x-real-ip") || req.headers.get("x-forwarded-for");
 
+
   params.replicateClient = new Replicate({
     auth: params.replicateApiToken,
     userAgent: "llama-chat",
@@ -28,23 +29,14 @@ export async function POST(req) {
     response = await runLlava(params);
   } else if (params.audio) {
     response = await runSalmonn(params);
-  } else if (params.model.includes("claude")) {
-    response = await runClaude(params);
   } else {
     response = await runLlama(params);
   }
 
   // Convert the response into a friendly text-stream
   const stream = await ReplicateStream(response);
-  
-  // Create response with CORS headers
-  const streamResponse = new StreamingTextResponse(stream);
-  streamResponse.headers.set('Access-Control-Allow-Origin', '*');
-  streamResponse.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  streamResponse.headers.set('Access-Control-Allow-Headers', 'Content-Type');
-  
   // Respond with the stream
-  return streamResponse;
+  return new StreamingTextResponse(stream);
 }
 
 async function runLlama({
@@ -60,6 +52,8 @@ async function runLlama({
   console.log("model", model);
   console.log("maxTokens", maxTokens);
 
+
+
   return await replicateClient.predictions.create({
     model: model,
     stream: true,
@@ -72,32 +66,6 @@ async function runLlama({
       temperature: temperature,
       repetition_penalty: 1,
       top_p: topP,
-    },
-  });
-}
-
-async function runClaude({
-  replicateClient,
-  model,
-  prompt,
-  systemPrompt,
-  maxTokens,
-  temperature,
-  topP,
-}) {
-  console.log("running claude");
-  console.log("model", model);
-  console.log("maxTokens", maxTokens);
-
-  return await replicateClient.predictions.create({
-    model: model,
-    stream: true,
-    input: {
-      prompt: `${prompt}`,
-      system_prompt: systemPrompt,
-      temperature: temperature,
-      top_p: topP,
-      max_tokens: maxTokens,
     },
   });
 }
@@ -121,7 +89,7 @@ async function runLlava({ replicateClient, prompt, maxTokens, temperature, topP,
 async function runSalmonn({ replicateClient, prompt, maxTokens, temperature, topP, audio }) {
   console.log("running salmonn");
 
-  return await replicateClient.predictions.create({
+  return await replicate.predictions.create({
     stream: true,
     input: {
       prompt: `${prompt}`,
@@ -132,13 +100,4 @@ async function runSalmonn({ replicateClient, prompt, maxTokens, temperature, top
     },
     version: VERSIONS["nateraw/salmonn"],
   });
-}
-
-// Add OPTIONS handler for CORS preflight requests
-export async function OPTIONS(req) {
-  const response = new Response(null, { status: 204 });
-  response.headers.set('Access-Control-Allow-Origin', '*');
-  response.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  response.headers.set('Access-Control-Allow-Headers', 'Content-Type');
-  return response;
 }
