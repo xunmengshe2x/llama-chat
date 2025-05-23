@@ -13,7 +13,6 @@ export async function POST(req) {
   const params = await req.json();
   const ip = req.headers.get("x-real-ip") || req.headers.get("x-forwarded-for");
 
-
   params.replicateClient = new Replicate({
     auth: params.replicateApiToken,
     userAgent: "llama-chat",
@@ -37,8 +36,15 @@ export async function POST(req) {
 
   // Convert the response into a friendly text-stream
   const stream = await ReplicateStream(response);
+  
+  // Create response with CORS headers
+  const streamResponse = new StreamingTextResponse(stream);
+  streamResponse.headers.set('Access-Control-Allow-Origin', '*');
+  streamResponse.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  streamResponse.headers.set('Access-Control-Allow-Headers', 'Content-Type');
+  
   // Respond with the stream
-  return new StreamingTextResponse(stream);
+  return streamResponse;
 }
 
 async function runLlama({
@@ -128,7 +134,7 @@ async function runSalmonn({ replicateClient, prompt, maxTokens, temperature, top
   });
 }
 
-// Add this at the end of your file
+// Add OPTIONS handler for CORS preflight requests
 export async function OPTIONS(req) {
   const response = new Response(null, { status: 204 });
   response.headers.set('Access-Control-Allow-Origin', '*');
@@ -136,4 +142,3 @@ export async function OPTIONS(req) {
   response.headers.set('Access-Control-Allow-Headers', 'Content-Type');
   return response;
 }
-
