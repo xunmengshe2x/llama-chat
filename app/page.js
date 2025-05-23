@@ -18,6 +18,14 @@ import { countTokens } from "./src/tokenizer.js";
 
 const MODELS = [
   {
+    id: "anthropic/claude-4-sonnet",
+    name: "Claude 4 Sonnet",
+    shortened: "Claude 4",
+    emoji: "🧠",
+    description: "Anthropic's Claude 4 Sonnet - powerful reasoning and coding",
+    new: true,
+  },
+  {
     id: "meta/meta-llama-3.1-405b-instruct",
     name: "Meta Llama 3.1 405B",
     shortened: "405B",
@@ -68,6 +76,19 @@ const llamaTemplate = LlamaTemplate();
 const llama3Template = Llama3Template();
 
 const generatePrompt = (template, systemPrompt, messages) => {
+  // For Claude models, we don't need to use a template
+  if (template === null) {
+    const chat = messages.map((message) => ({
+      role: message.isUser ? "user" : "assistant",
+      content: message.text,
+    }));
+    
+    // Return just the last user message as the prompt
+    // System prompt is handled separately for Claude
+    const lastUserMessage = messages[messages.length - 1];
+    return lastUserMessage.text;
+  }
+  
   const chat = messages.map((message) => ({
     role: message.isUser ? "user" : "assistant",
     content: message.text,
@@ -115,7 +136,7 @@ export default function HomePage() {
   };
 
   //   Llama params
-  const [model, setModel] = useState(MODELS[0]); // default to 405B
+  const [model, setModel] = useState(MODELS[0]); // default to Claude 4 Sonnet
   const [systemPrompt, setSystemPrompt] = useState(
     "You are a helpful assistant."
   );
@@ -171,13 +192,13 @@ export default function HomePage() {
         )
       ) {
         setAudio(file.fileUrl);
-        setModel(MODELS[4]);
+        setModel(MODELS[5]);
         toast.success(
           "You uploaded an audio file, so you're now speaking with Salmonn."
         );
       } else if (["image/jpeg", "image/png"].includes(file.originalFile.mime)) {
         setImage(file.fileUrl);
-        setModel(MODELS[3]);
+        setModel(MODELS[4]);
         toast.success(
           "You uploaded an image, so you're now speaking with Llava."
         );
@@ -218,33 +239,43 @@ export default function HomePage() {
     });
 
     // Generate initial prompt and calculate tokens
-    let prompt = `${generatePrompt(
-      model.name.includes("Llama 3") ? llama3Template : llamaTemplate,
-      systemPrompt,
-      messageHistory
-    )}\n`;
+    let prompt;
+    
+    // For Claude models, we handle the prompt differently
+    if (model.id.includes("claude")) {
+      prompt = generatePrompt(null, systemPrompt, messageHistory);
+    } else {
+      prompt = `${generatePrompt(
+        model.name.includes("Llama 3") ? llama3Template : llamaTemplate,
+        systemPrompt,
+        messageHistory
+      )}\n`;
+    }
 
     console.log(prompt);
 
     // Check if we exceed max tokens and truncate the message history if so.
-    while (countTokens(prompt) > MAX_TOKENS) {
-      if (messageHistory.length < 3) {
-        setError(
-          "Your message is too long. Please try again with a shorter message."
-        );
+    // Skip this for Claude as it handles context differently
+    if (!model.id.includes("claude")) {
+      while (countTokens(prompt) > MAX_TOKENS) {
+        if (messageHistory.length < 3) {
+          setError(
+            "Your message is too long. Please try again with a shorter message."
+          );
 
-        return;
+          return;
+        }
+
+        // Remove the third message from history, keeping the original exchange.
+        messageHistory.splice(1, 2);
+
+        // Recreate the prompt
+        prompt = `${SNIP}\n${generatePrompt(
+          llamaTemplate,
+          systemPrompt,
+          messageHistory
+        )}\n`;
       }
-
-      // Remove the third message from history, keeping the original exchange.
-      messageHistory.splice(1, 2);
-
-      // Recreate the prompt
-      prompt = `${SNIP}\n${generatePrompt(
-        llamaTemplate,
-        systemPrompt,
-        messageHistory
-      )}\n`;
     }
 
     setMessages(messageHistory);
@@ -294,7 +325,7 @@ export default function HomePage() {
           <button
             type="button"
             className="inline-flex items-center px-3 py-2 text-sm font-semibold text-gray-900 bg-white rounded-md shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-            onClick={() => setOpen(true)}
+            onClick={( ) => setOpen(true)}
           >
             <Cog6ToothIcon
               className="w-5 h-5 text-gray-500 sm:mr-2 group-hover:text-gray-900"
