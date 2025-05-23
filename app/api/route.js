@@ -115,7 +115,7 @@ async function runLlava({ replicateClient, prompt, maxTokens, temperature, topP,
 async function runSalmonn({ replicateClient, prompt, maxTokens, temperature, topP, audio }) {
   console.log("running salmonn");
 
-  return await replicate.predictions.create({
+  return await replicateClient.predictions.create({
     stream: true,
     input: {
       prompt: `${prompt}`,
@@ -127,3 +127,4 @@ async function runSalmonn({ replicateClient, prompt, maxTokens, temperature, top
     version: VERSIONS["nateraw/salmonn"],
   });
 }
+
