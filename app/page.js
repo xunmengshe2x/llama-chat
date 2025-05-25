@@ -100,8 +100,12 @@ export default function HomePage() {
   // Load messages from localStorage on initial render
   useEffect(() => {
     const savedMessages = localStorage.getItem('chatHistory');
+    const savedCompletion = localStorage.getItem('lastCompletion');
     if (savedMessages) {
       setMessages(JSON.parse(savedMessages));
+    }
+    if (savedCompletion) {
+      setInput(JSON.parse(savedCompletion));
     }
   }, []);
 
@@ -111,6 +115,13 @@ export default function HomePage() {
       localStorage.setItem('chatHistory', JSON.stringify(messages));
     }
   }, [messages]);
+
+  // Save completion to localStorage whenever it changes
+  useEffect(() => {
+    if (completion) {
+      localStorage.setItem('lastCompletion', JSON.stringify(completion));
+    }
+  }, [completion]);
 
   const { complete, completion, setInput, input, isLoading } = useCompletion({
     api: "/api",
@@ -140,10 +151,12 @@ export default function HomePage() {
 
   const clearHistory = () => {
     setMessages([]);
-    localStorage.removeItem('chatHistory');
     setInput('');
     // Reset the completion by calling complete with empty string
     complete('');
+    // Clear both chat history and completion from localStorage
+    localStorage.removeItem('chatHistory');
+    localStorage.removeItem('lastCompletion');
     // Reset the metrics
     dispatch({ type: "START" });
   };
