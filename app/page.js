@@ -126,6 +126,20 @@ export default function HomePage() {
     },
   });
 
+  const clearHistory = () => {
+    setMessages([]);
+    setInput('');
+    setError(null);
+    setStarting(false);
+    // Clear localStorage
+    localStorage.removeItem('chatHistory');
+    // Reset the completion state from useCompletion
+    setInput('');
+    complete('');
+    // Reset the metrics
+    dispatch({ type: "START" });
+  };
+
   // Load messages from localStorage on initial render
   useEffect(() => {
     try {
@@ -145,38 +159,32 @@ export default function HomePage() {
   // Save messages to localStorage whenever they change or when completion changes
   useEffect(() => {
     if (Array.isArray(messages)) {
-      // Create a copy of messages
-      let messageHistory = [...messages];
+      // Only save messages if we have any
+      if (messages.length > 0) {
+        // Create a copy of messages
+        let messageHistory = [...messages];
 
-      // If there's a completion and the last message isn't from the assistant,
-      // add the completion as an assistant message
-      if (completion && completion.trim() &&
-        (messageHistory.length === 0 || messageHistory[messageHistory.length - 1].isUser)) {
-        messageHistory.push({
-          text: completion,
-          isUser: false
-        });
-      }
+        // If there's a completion and the last message isn't from the assistant,
+        // add the completion as an assistant message
+        if (completion && completion.trim() &&
+          (messageHistory.length === 0 || messageHistory[messageHistory.length - 1].isUser)) {
+          messageHistory.push({
+            text: completion,
+            isUser: false
+          });
+        }
 
-      // Only save if we have messages
-      if (messageHistory.length > 0) {
         localStorage.setItem('chatHistory', JSON.stringify(messageHistory));
       } else {
+        // If messages array is empty, remove from localStorage
         localStorage.removeItem('chatHistory');
+        // Also clear completion if messages are cleared
+        if (completion) {
+          complete('');
+        }
       }
     }
   }, [messages, completion]);
-
-  const clearHistory = () => {
-    setMessages([]);
-    setInput('');
-    setError(null);
-    setStarting(false);
-    // Clear localStorage
-    localStorage.removeItem('chatHistory');
-    // Reset the metrics
-    dispatch({ type: "START" });
-  };
 
   const handleFileUpload = (file) => {
     if (file) {

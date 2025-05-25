@@ -113,7 +113,42 @@
 }
 
 @keyframes border-flow {
-  0% { background-position: 0% 50% }
-  50% { background-position: 100% 50% }
-  100% { background-position: 0% 50% }
+  0% {
+    background-position: 0% 50%
+  }
+
+  50% {
+    background-position: 100% 50%
+  }
+
+  100% {
+    background-position: 0% 50%
+  }
+}
+
+/* Markdown table styles */
+.markdown-content table {
+  @apply w-full my-4 border-collapse;
+}
+
+.markdown-content th,
+.markdown-content td {
+  @apply border border-gray-300 dark:border-kojima-gray/50 px-4 py-2;
+}
+
+.markdown-content th {
+  @apply bg-gray-100 dark:bg-kojima-gray font-semibold;
+}
+
+.markdown-content tr:nth-child(even) {
+  @apply bg-gray-50 dark:bg-kojima-gray/30;
+}
+
+.markdown-content tr:hover {
+  @apply bg-gray-100 dark:bg-kojima-gray/50;
+}
+
+/* Preserve whitespace in table cells but wrap text */
+.markdown-content td {
+  @apply whitespace-pre-wrap;
 }

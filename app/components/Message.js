@@ -1,4 +1,5 @@
 import ReactMarkdown from 'react-markdown';
+import { formatMarkdown } from '../utils/markdown';
 
 const Message = ({ message, isUser }) => {
   let containerClass = "bg-gray-100 dark:bg-kojima-gray";
@@ -13,6 +14,9 @@ const Message = ({ message, isUser }) => {
   if (!message || message === "") {
     return null;
   }
+
+  // Format the markdown content, including tables
+  const formattedMessage = formatMarkdown(message);
 
   return (
     <div
@@ -30,7 +34,7 @@ const Message = ({ message, isUser }) => {
 
       <div className={`${containerClass} flex flex-col text-sm sm:text-base flex-1 gap-y-2 p-4 rounded-lg shadow-sm dark:shadow-kojima-inner border border-transparent dark:border-kojima-gray/50 backdrop-blur-sm transition-all duration-300`}>
         <ReactMarkdown className="markdown-content dark:text-apple-text-primary">
-          {message}
+          {formattedMessage}
         </ReactMarkdown>
       </div>
     </div>
