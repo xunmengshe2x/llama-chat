@@ -21,7 +21,7 @@
     "nextjs": "^0.0.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-hot-toast": "^2.4.1",
+    "react-hot-toast": "^2.5.2",
     "react-markdown": "^9.0.1",
     "readable-stream": "^4.4.2",
     "replicate": "^0.32.0"
