@@ -7,8 +7,6 @@ export default function SlideOver({
   setOpen,
   systemPrompt,
   setSystemPrompt,
-  replicateApiToken,
-  setReplicateApiToken,
   handleSubmit,
   temp,
   setTemp,
@@ -83,34 +81,6 @@ export default function SlideOver({
 
                           <div>
                             <label
-                              htmlFor="replicateApiToken"
-                              className="block text-sm font-medium leading-6 text-gray-900 dark:text-apple-text-primary"
-                            >
-                              Replicate API Token
-                            </label>
-                            <div className="mt-2">
-                              <input
-                                type="password"
-                                id="replicateApiToken"
-                                name="replicateApiToken"
-                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 dark:text-apple-text-primary bg-white dark:bg-kojima-gray shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-kojima-gray/50 placeholder:text-gray-400 dark:placeholder:text-apple-text-quaternary focus:ring-2 focus:ring-inset focus:ring-apple-accent-blue dark:focus:ring-apple-accent-blue/70 sm:text-sm sm:leading-6 transition-colors duration-200"
-                                defaultValue={replicateApiToken}
-                              />
-                            </div>
-                            <p className="mt-2 text-sm text-gray-500 dark:text-apple-text-tertiary">
-                              Get your token at{" "}
-                              <a
-                                href="https://replicate.com/account/api-tokens"
-                                target="_blank"
-                                className="text-apple-accent-blue hover:text-apple-accent-indigo transition-colors duration-200"
-                              >
-                                replicate.com/account/api-tokens
-                              </a>
-                            </p>
-                          </div>
-
-                          <div>
-                            <label
                               htmlFor="temperature"
                               className="block text-sm font-medium leading-6 text-gray-900 dark:text-apple-text-primary"
                             >
@@ -124,7 +94,7 @@ export default function SlideOver({
                                 max="1"
                                 step="0.01"
                                 value={temp}
-                                onChange={(e ) => setTemp(e.target.value)}
+                                onChange={(e) => setTemp(e.target.value)}
                                 className="w-full h-2 bg-gray-200 dark:bg-kojima-gray rounded-lg appearance-none cursor-pointer accent-apple-accent-blue dark:accent-apple-accent-blue/90 transition-colors duration-200"
                               />
                             </div>

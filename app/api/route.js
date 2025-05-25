@@ -13,9 +13,14 @@ export async function POST(req) {
   const params = await req.json();
   const ip = req.headers.get("x-real-ip") || req.headers.get("x-forwarded-for");
 
+  // Use environment variable for API token, fallback to provided token for backward compatibility
+  const apiToken = process.env.REPLICATE_API_TOKEN || params.replicateApiToken;
+  if (!apiToken) {
+    return new Response("Replicate API token not found", { status: 401 });
+  }
 
   params.replicateClient = new Replicate({
-    auth: params.replicateApiToken,
+    auth: apiToken,
     userAgent: "llama-chat",
   });
 
@@ -52,12 +57,52 @@ async function runLlama({
   console.log("model", model);
   console.log("maxTokens", maxTokens);
 
+  let input;
+  try {
+    // Check if the prompt is a JSON string containing message history
+    const parsedPrompt = JSON.parse(prompt);
+    if (parsedPrompt.messages && Array.isArray(parsedPrompt.messages)) {
+      if (model.includes("claude")) {
+        // Format conversation history into a single string for Claude
+        const conversationString = parsedPrompt.messages
+          .map(msg => `${msg.isUser ? 'User: ' : 'Assistant: '}${msg.text}`)
+          .join('\n\n');
 
+        // Add system prompt at the beginning if provided
+        let fullPrompt = parsedPrompt.systemPrompt
+          ? `${parsedPrompt.systemPrompt}\n\n${conversationString}`
+          : conversationString;
 
-  return await replicateClient.predictions.create({
-    model: model,
-    stream: true,
-    input: {
+        // Always end with "Assistant:" to prompt the model to respond
+        if (!fullPrompt.endsWith('Assistant:')) {
+          fullPrompt += '\n\nAssistant:';
+        }
+
+        input = {
+          prompt: fullPrompt,
+          max_tokens: Math.max(1024, maxTokens), // Claude requires minimum 1024
+          temperature: temperature,
+          top_p: topP,
+        };
+
+        console.log("Claude prompt:", fullPrompt);
+      } else {
+        // Format for other models
+        input = {
+          prompt: `${prompt}`,
+          max_new_tokens: maxTokens,
+          ...(model.includes("llama3")
+            ? { max_tokens: maxTokens }
+            : { max_new_tokens: maxTokens }),
+          temperature: temperature,
+          repetition_penalty: 1,
+          top_p: topP,
+        };
+      }
+    }
+  } catch (e) {
+    // If not JSON, use regular prompt format
+    input = {
       prompt: `${prompt}`,
       max_new_tokens: maxTokens,
       ...(model.includes("llama3")
@@ -66,7 +111,15 @@ async function runLlama({
       temperature: temperature,
       repetition_penalty: 1,
       top_p: topP,
-    },
+    };
+  }
+
+  console.log("Sending input to model:", input);
+
+  return await replicateClient.predictions.create({
+    model: model,
+    stream: true,
+    input: input,
   });
 }
 
