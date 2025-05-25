@@ -97,32 +97,6 @@ export default function HomePage() {
     completedAt: null,
   });
 
-  // Load messages from localStorage on initial render
-  useEffect(() => {
-    const savedMessages = localStorage.getItem('chatHistory');
-    const savedCompletion = localStorage.getItem('lastCompletion');
-    if (savedMessages) {
-      setMessages(JSON.parse(savedMessages));
-    }
-    if (savedCompletion) {
-      setInput(JSON.parse(savedCompletion));
-    }
-  }, []);
-
-  // Save messages to localStorage whenever they change
-  useEffect(() => {
-    if (messages.length > 0) {
-      localStorage.setItem('chatHistory', JSON.stringify(messages));
-    }
-  }, [messages]);
-
-  // Save completion to localStorage whenever it changes
-  useEffect(() => {
-    if (completion) {
-      localStorage.setItem('lastCompletion', JSON.stringify(completion));
-    }
-  }, [completion]);
-
   const { complete, completion, setInput, input, isLoading } = useCompletion({
     api: "/api",
     body: {
@@ -134,10 +108,12 @@ export default function HomePage() {
       image: image,
       audio: audio,
     },
+    id: "chat",
     onError: (e) => {
       const errorText = e.toString();
       console.error(`Error converted to text: ${errorText}`);
       setError(e);
+      setStarting(false);
     },
     onResponse: (response) => {
       setStarting(false);
@@ -146,17 +122,58 @@ export default function HomePage() {
     },
     onFinish: () => {
       dispatch({ type: "COMPLETE" });
+      setStarting(false);
     },
   });
+
+  // Load messages from localStorage on initial render
+  useEffect(() => {
+    try {
+      const savedMessages = localStorage.getItem('chatHistory');
+      if (savedMessages) {
+        const parsedMessages = JSON.parse(savedMessages);
+        if (Array.isArray(parsedMessages) && parsedMessages.length > 0) {
+          setMessages(parsedMessages);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+      localStorage.removeItem('chatHistory');
+    }
+  }, []);
+
+  // Save messages to localStorage whenever they change or when completion changes
+  useEffect(() => {
+    if (Array.isArray(messages)) {
+      // Create a copy of messages
+      let messageHistory = [...messages];
+
+      // If there's a completion and the last message isn't from the assistant,
+      // add the completion as an assistant message
+      if (completion && completion.trim() &&
+        (messageHistory.length === 0 || messageHistory[messageHistory.length - 1].isUser)) {
+        messageHistory.push({
+          text: completion,
+          isUser: false
+        });
+      }
+
+      // Only save if we have messages
+      if (messageHistory.length > 0) {
+        localStorage.setItem('chatHistory', JSON.stringify(messageHistory));
+      } else {
+        localStorage.removeItem('chatHistory');
+      }
+    }
+  }, [messages, completion]);
 
   const clearHistory = () => {
     setMessages([]);
     setInput('');
-    // Reset the completion by calling complete with empty string
-    complete('');
-    // Clear both chat history and completion from localStorage
+    setError(null);
+    setStarting(false);
+    // Clear localStorage
     localStorage.removeItem('chatHistory');
-    localStorage.removeItem('lastCompletion');
     // Reset the metrics
     dispatch({ type: "START" });
   };
@@ -200,15 +217,16 @@ export default function HomePage() {
 
   const handleSubmit = async (userMessage) => {
     // Prevent empty messages
-    if (!userMessage || userMessage.trim() === '') {
+    if (!userMessage || typeof userMessage !== 'string' || userMessage.trim() === '') {
       return;
     }
 
     setStarting(true);
+    setError(null);
     const SNIP = "<!-- snip -->";
 
     const messageHistory = [...messages];
-    if (completion.length > 0) {
+    if (completion && completion.trim()) {
       messageHistory.push({
         text: completion,
         isUser: false,
@@ -221,12 +239,24 @@ export default function HomePage() {
 
     setMessages(messageHistory);
 
-    // For Claude models, we handle the prompt differently
+    // For Claude models, format messages properly
     if (model.id.includes("claude")) {
-      complete(JSON.stringify({
-        messages: messageHistory,
-        systemPrompt: systemPrompt
-      }));
+      const formattedMessages = messageHistory.map(msg => ({
+        role: msg.isUser ? "user" : "assistant",
+        content: msg.text.trim()
+      })).filter(msg => msg.content !== '');
+
+      if (formattedMessages.length === 0) {
+        setStarting(false);
+        return;
+      }
+
+      // Format conversation for Claude
+      const conversationString = formattedMessages
+        .map(msg => `${msg.role === 'user' ? 'Human: ' : 'Assistant: '}${msg.content}`)
+        .join('\n\n');
+
+      complete(conversationString + '\n\nAssistant: ');
     } else {
       let prompt = generatePrompt(
         model.name.includes("Llama 3") ? llama3Template : llamaTemplate,

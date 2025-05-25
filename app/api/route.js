@@ -58,36 +58,19 @@ async function runLlama({
   console.log("maxTokens", maxTokens);
 
   let input;
-  try {
-    // Check if the prompt is a JSON string containing message history
-    const parsedPrompt = JSON.parse(prompt);
-    if (parsedPrompt.messages && Array.isArray(parsedPrompt.messages)) {
-      if (model.includes("claude")) {
-        // Format conversation history into a single string for Claude
-        const conversationString = parsedPrompt.messages
-          .map(msg => `${msg.isUser ? 'User: ' : 'Assistant: '}${msg.text}`)
-          .join('\n\n');
-
-        // Add system prompt at the beginning if provided
-        let fullPrompt = parsedPrompt.systemPrompt
-          ? `${parsedPrompt.systemPrompt}\n\n${conversationString}`
-          : conversationString;
-
-        // Always end with "Assistant:" to prompt the model to respond
-        if (!fullPrompt.endsWith('Assistant:')) {
-          fullPrompt += '\n\nAssistant:';
-        }
-
-        input = {
-          prompt: fullPrompt,
-          max_tokens: Math.max(1024, maxTokens), // Claude requires minimum 1024
-          temperature: temperature,
-          top_p: topP,
-        };
-
-        console.log("Claude prompt:", fullPrompt);
-      } else {
-        // Format for other models
+  if (model.includes("claude")) {
+    // For Claude, use the prompt directly as it's already formatted
+    input = {
+      prompt: prompt,
+      max_tokens: Math.max(1024, maxTokens), // Claude requires minimum 1024
+      temperature: temperature,
+      top_p: topP,
+    };
+  } else {
+    try {
+      // Check if the prompt is a JSON string containing message history
+      const parsedPrompt = JSON.parse(prompt);
+      if (parsedPrompt.messages && Array.isArray(parsedPrompt.messages)) {
         input = {
           prompt: `${prompt}`,
           max_new_tokens: maxTokens,
@@ -99,19 +82,19 @@ async function runLlama({
           top_p: topP,
         };
       }
+    } catch (e) {
+      // If not JSON, use regular prompt format
+      input = {
+        prompt: `${prompt}`,
+        max_new_tokens: maxTokens,
+        ...(model.includes("llama3")
+          ? { max_tokens: maxTokens }
+          : { max_new_tokens: maxTokens }),
+        temperature: temperature,
+        repetition_penalty: 1,
+        top_p: topP,
+      };
     }
-  } catch (e) {
-    // If not JSON, use regular prompt format
-    input = {
-      prompt: `${prompt}`,
-      max_new_tokens: maxTokens,
-      ...(model.includes("llama3")
-        ? { max_tokens: maxTokens }
-        : { max_new_tokens: maxTokens }),
-      temperature: temperature,
-      repetition_penalty: 1,
-      top_p: topP,
-    };
   }
 
   console.log("Sending input to model:", input);
